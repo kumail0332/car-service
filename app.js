@@ -12,8 +12,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // include routes
 app.use('/', express.static('views'));
+app.use('/assets', express.static('assets'));
 app.use('/api/customers', require('./routes/customer'));
 app.use('/api/cars', require('./routes/car'));
 
 // listen on port 3000
-app.listen(3000);
+app.listen(3000, function() {
+	console.log('Running app http://localhost:3000');
+});

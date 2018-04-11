@@ -25,7 +25,8 @@ router.get('/get', function(req, res) {
 router.put('/update', function(req, res) {
 	var data = new Customer(req.body);
 	var customer = {
-		name: data.name,
+		firstName: data.firstName,
+		lastName: data.lastName,
 		phone: data.phone,
 		email: data.email,
 		password: data.password,

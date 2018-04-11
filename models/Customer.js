@@ -1,9 +1,13 @@
 var mongoose = require('mongoose');
 
 var customerSchema = new mongoose.Schema({
-	name: {
+	firstName: {
 		type: String,
 		required: true,
+		trim: true
+	},
+	lastName: {
+		type: String,
 		trim: true
 	},
 	phone: {
