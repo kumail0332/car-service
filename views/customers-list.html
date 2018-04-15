@@ -1,0 +1,394 @@
+<!doctype html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title> Online Car Service </title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+        <link rel="stylesheet" href="assets/css/vendor.css">
+        <!-- Theme initialization -->
+        <link rel="stylesheet" href="assets/css/app-red.css">
+        <script src="assets/js/vendor.js"></script>
+        <script type="text/javascript">
+			$.ajax({
+				type: 'get',
+				url: '/api/validate-session',
+				success: function(user) {
+					if (user) {
+                        $('#profile-name').text(user.name);
+                        if (!user.isAdmin) {
+                            $('article').load('/error-403.html');
+                            $('[class*="menu--"]').remove();
+                        }
+					    $('body').removeClass('d-none');
+					} else {
+						window.location.replace('/login.html');
+					}
+				}
+			});
+
+            $(document).ready(function() {
+                $.ajax({
+                    type: 'get',
+                    url: '/api/customers/get',
+                    success: function(customers) {
+                        var customersList = '';
+                        for(var i = 0; i < customers.length; i++) {
+                            customersList += '<li class="item">\
+                                <div class="item-row">\
+                                    <div class="item-col item-col-header fixed item-col-img md">\
+                                        <div class="item-heading">S.No</div>\
+                                        <div> '+ (i+1) +' </div>\
+                                    </div>\
+                                    <div class="item-col">\
+                                        <div class="item-heading">First Name</div>\
+                                        <div> '+ customers[i].firstName +' </div>\
+                                    </div>\
+                                    <div class="item-col">\
+                                        <div class="item-heading">Last Name</div>\
+                                        <div> '+ customers[i].lastName +' </div>\
+                                    </div>\
+                                    <div class="item-col">\
+                                        <div class="item-heading">Email</div>\
+                                        <div> '+ customers[i].email +' </div>\
+                                    </div>\
+                                    <div class="item-col">\
+                                        <div class="item-heading">Phone Number</div>\
+                                        <div> '+ customers[i].phone +' </div>\
+                                    </div>\
+                                    <div class="item-col fixed item-col-actions-dropdown">\
+                                        <div class="item-actions-dropdown">\
+                                            <a class="item-actions-toggle-btn">\
+                                                <span class="inactive">\
+                                                    <i class="fa fa-cog"></i>\
+                                                </span>\
+                                                <span class="active">\
+                                                    <i class="fa fa-chevron-circle-right"></i>\
+                                                </span>\
+                                            </a>\
+                                            <div class="item-actions-block">\
+                                                <ul class="item-actions-list">\
+                                                    <li>\
+                                                        <a class="remove" href="#" data-toggle="modal" data-target="#confirm-modal" data-id="'+ customers[i]._id +'">\
+                                                            <i class="fa fa-trash-o "></i>\
+                                                        </a>\
+                                                    </li>\
+                                                    <li>\
+                                                        <a class="edit" href="">\
+                                                            <i class="fa fa-pencil"></i>\
+                                                        </a>\
+                                                    </li>\
+                                                </ul>\
+                                            </div>\
+                                        </div>\
+                                    </div>\
+                                </div>\
+                            </li>';
+                        }
+                        $('.item-list').append(customersList);
+
+                        $('.remove').on('click', function() {
+                            var ID = $(this).data('id');
+                            $('#confirm-delete').data('id', ID);
+                        });
+                    }
+                });
+
+                $('#confirm-delete').click(function() {
+                    var ID = $(this).data('id');
+                    $.ajax({
+                        type: 'delete',
+                        url: '/api/customers/delete?id=' + ID,
+                        success: function(res) {
+                            $('<div class="alert alert-success">Customer deleted successfully!</div>').hide().insertBefore('.title-search-block').slideDown('500', function() {
+                                setTimeout(function(){
+                                    $('.alert').slideUp(500, function(){ $(this).remove(); });
+                                }, 5000);
+                            });
+                        }
+                    });
+                });
+            })
+        </script>
+    </head>
+    <body class="d-none">
+        <div class="main-wrapper">
+            <div class="app header-fixed sidebar-fixed" id="app">
+                <header class="header">
+                    <div class="header-block header-block-collapse d-lg-none d-xl-none">
+                        <button class="collapse-btn" id="sidebar-collapse-btn">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                    </div>
+                    <div class="header-block header-block-search">
+                        <form role="search">
+                            <div class="input-container">
+                                <i class="fa fa-search"></i>
+                                <input type="search" placeholder="Search">
+                                <div class="underline"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="header-block header-block-nav">
+                        <ul class="nav-profile">
+                            <li class="notifications new">
+                                <a href="" data-toggle="dropdown">
+                                    <i class="fa fa-bell-o"></i>
+                                    <sup>
+                                        <span class="counter">8</span>
+                                    </sup>
+                                </a>
+                                <div class="dropdown-menu notifications-dropdown-menu">
+                                    <ul class="notifications-container">
+                                        <li>
+                                            <a href="" class="notification-item">
+                                                <div class="img-col">
+                                                    <div class="img" style="background-image: url('assets/faces/3.jpg')"></div>
+                                                </div>
+                                                <div class="body-col">
+                                                    <p>
+                                                        <span class="accent">Zack Alien</span> pushed new commit:
+                                                        <span class="accent">Fix page load performance issue</span>. </p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="" class="notification-item">
+                                                <div class="img-col">
+                                                    <div class="img" style="background-image: url('assets/faces/5.jpg')"></div>
+                                                </div>
+                                                <div class="body-col">
+                                                    <p>
+                                                        <span class="accent">Amaya Hatsumi</span> started new task:
+                                                        <span class="accent">Dashboard UI design.</span>. </p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="" class="notification-item">
+                                                <div class="img-col">
+                                                    <div class="img" style="background-image: url('assets/faces/8.jpg')"></div>
+                                                </div>
+                                                <div class="body-col">
+                                                    <p>
+                                                        <span class="accent">Andy Nouman</span> deployed new version of
+                                                        <span class="accent">NodeJS REST Api V3</span>
+                                                    </p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <footer>
+                                        <ul>
+                                            <li>
+                                                <a href=""> View All </a>
+                                            </li>
+                                        </ul>
+                                    </footer>
+                                </div>
+                            </li>
+                            <li class="profile dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <div class="img" style="background-image: url('https://avatars3.githubusercontent.com/u/3959008?v=3&s=40')"> </div>
+                                    <span class="name" id="profile-name"></span>
+                                </a>
+                                <div class="dropdown-menu profile-dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fa fa-user icon"></i> Profile </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fa fa-bell icon"></i> Notifications </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fa fa-gear icon"></i> Settings </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" id="logout" href="#">
+                                        <i class="fa fa-power-off icon"></i> Logout </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </header>
+                <aside class="sidebar">
+                    <div class="sidebar-container">
+                        <div class="sidebar-header">
+                            <div class="brand">
+                                <div class="logo">
+                                    <span class="l l1"></span>
+                                    <span class="l l2"></span>
+                                    <span class="l l3"></span>
+                                    <span class="l l4"></span>
+                                    <span class="l l5"></span>
+                                </div> Car Service </div>
+                        </div>
+                        <nav class="menu">
+                            <ul class="sidebar-menu metismenu" id="sidebar-menu">
+                                <li class="active">
+                                    <a href="index.html">
+                                        <i class="fa fa-home"></i> Dashboard </a>
+                                </li>
+                                <li class="menu--customers">
+                                    <a href="">
+                                        <i class="fa fa-th-large"></i> Customers 
+                                        <i class="fa arrow"></i>
+                                    </a>
+                                    <ul class="sidebar-nav">
+                                        <li>
+                                            <a href="customers-list.html"> Customers List </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="menu--services">
+                                    <a href="">
+                                        <i class="fa fa-th-large"></i> Services 
+                                        <i class="fa arrow"></i>
+                                    </a>
+                                    <ul class="sidebar-nav">
+                                        <li>
+                                            <a href="items-list.html"> Services List </a>
+                                        </li>
+                                        <li>
+                                            <a href="item-editor.html"> Add Service </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </aside>
+                <div class="sidebar-overlay" id="sidebar-overlay"></div>
+                <div class="sidebar-mobile-menu-handle" id="sidebar-mobile-menu-handle"></div>
+                <div class="mobile-menu-handle"></div>
+                <article class="content items-list-page">
+                    <div class="title-search-block">
+                        <div class="title-block">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="title"> Customers
+                                        <!-- <a href="item-editor.html" class="btn btn-primary btn-sm rounded-s"> Add New </a> -->
+                                    </h3>
+                                    <p class="title-description"> List of customers </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card items">
+                        <ul class="item-list striped">
+                            <li class="item item-list-header">
+                                <div class="item-row">
+                                    <div class="item-col item-col-header fixed item-col-img md">
+                                        <div>
+                                            <span>S.No</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>First Name</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Last Name</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Email</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Phone Number</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header fixed item-col-actions-dropdown"> </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </article>
+                <div class="modal fade" id="modal-media">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Media Library</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    <span class="sr-only">Close</span>
+                                </button>
+                            </div>
+                            <div class="modal-body modal-tab-container">
+                                <ul class="nav nav-tabs modal-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#gallery" data-toggle="tab" role="tab">Gallery</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="#upload" data-toggle="tab" role="tab">Upload</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content modal-tab-content">
+                                    <div class="tab-pane fade" id="gallery" role="tabpanel">
+                                        <div class="images-container">
+                                            <div class="row"> </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade active in" id="upload" role="tabpanel">
+                                        <div class="upload-container">
+                                            <div id="dropzone">
+                                                <form action="/" method="POST" enctype="multipart/form-data" class="dropzone needsclick dz-clickable" id="demo-upload">
+                                                    <div class="dz-message-block">
+                                                        <div class="dz-message needsclick"> Drop files here or click to upload. </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Insert Selected</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+                <div class="modal fade" id="confirm-modal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">
+                                    <i class="fa fa-warning"></i> Alert</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure want to delete?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirm-delete">Yes</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+            </div>
+        </div>
+        <!-- Reference block for JS -->
+        <div class="ref" id="ref">
+            <div class="color-primary"></div>
+            <div class="chart">
+                <div class="color-primary"></div>
+                <div class="color-secondary"></div>
+            </div>
+        </div>
+        <script src="assets/js/app.js"></script>
+    </body>
+</html>

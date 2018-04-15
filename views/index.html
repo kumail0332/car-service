@@ -11,8 +11,28 @@
         <link rel="stylesheet" href="assets/css/vendor.css">
         <!-- Theme initialization -->
         <link rel="stylesheet" href="assets/css/app-red.css">
+        <script src="assets/js/vendor.js"></script>
+        <script type="text/javascript">
+			$.ajax({
+				type: 'get',
+				url: '/api/validate-session',
+				success: function(user) {
+					if (user) {
+                        $('#profile-name').text(user.name);
+                        if (!user.isAdmin) {
+                            $('[class*="menu--"]').remove();
+                        } else {
+                            $('[class*="customer--"]').remove();
+                        }
+						$('body').removeClass('d-none');
+					} else {
+						window.location.replace('/login.html');
+					}
+				}
+			});
+        </script>
     </head>
-    <body>
+    <body class="d-none">
         <div class="main-wrapper">
             <div class="app header-fixed sidebar-fixed" id="app">
                 <header class="header">
@@ -91,7 +111,7 @@
                             <li class="profile dropdown">
                                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                                     <div class="img" style="background-image: url('https://avatars3.githubusercontent.com/u/3959008?v=3&s=40')"> </div>
-                                    <span class="name"> John Doe </span>
+                                    <span class="name" id="profile-name"></span>
                                 </a>
                                 <div class="dropdown-menu profile-dropdown-menu" aria-labelledby="dropdownMenu1">
                                     <a class="dropdown-item" href="#">
@@ -101,7 +121,7 @@
                                     <a class="dropdown-item" href="#">
                                         <i class="fa fa-gear icon"></i> Settings </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="login.html">
+                                    <a class="dropdown-item" id="logout" href="#">
                                         <i class="fa fa-power-off icon"></i> Logout </a>
                                 </div>
                             </li>
@@ -126,163 +146,44 @@
                                     <a href="index.html">
                                         <i class="fa fa-home"></i> Dashboard </a>
                                 </li>
-                                <li>
+                                <li class="menu--customers">
                                     <a href="">
-                                        <i class="fa fa-th-large"></i> Items Manager
+                                        <i class="fa fa-th-large"></i> Customers 
                                         <i class="fa arrow"></i>
                                     </a>
                                     <ul class="sidebar-nav">
                                         <li>
-                                            <a href="items-list.html"> Items List </a>
+                                            <a href="customers-list.html"> Customers List </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="menu--services">
+                                    <a href="">
+                                        <i class="fa fa-th-large"></i> Services 
+                                        <i class="fa arrow"></i>
+                                    </a>
+                                    <ul class="sidebar-nav">
+                                        <li>
+                                            <a href="services-list.html"> Services List </a>
                                         </li>
                                         <li>
-                                            <a href="item-editor.html"> Item Editor </a>
+                                            <a href="services-editor.html"> Add Service </a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a href="">
-                                        <i class="fa fa-area-chart"></i> Charts
+                                        <i class="fa fa-th-large"></i> Orders 
                                         <i class="fa arrow"></i>
                                     </a>
                                     <ul class="sidebar-nav">
                                         <li>
-                                            <a href="charts-flot.html"> Flot Charts </a>
+                                            <a href="orders-list.html"> Orders List </a>
                                         </li>
-                                        <li>
-                                            <a href="charts-morris.html"> Morris Charts </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="">
-                                        <i class="fa fa-table"></i> Tables
-                                        <i class="fa arrow"></i>
-                                    </a>
-                                    <ul class="sidebar-nav">
-                                        <li>
-                                            <a href="static-tables.html"> Static Tables </a>
-                                        </li>
-                                        <li>
-                                            <a href="responsive-tables.html"> Responsive Tables </a>
+                                        <li class="customer--order">
+                                            <a href="new-order.html"> New Order </a>
                                         </li>
                                     </ul>
-                                </li>
-                                <li>
-                                    <a href="forms.html">
-                                        <i class="fa fa-pencil-square-o"></i> Forms </a>
-                                </li>
-                                <li>
-                                    <a href="">
-                                        <i class="fa fa-desktop"></i> UI Elements
-                                        <i class="fa arrow"></i>
-                                    </a>
-                                    <ul class="sidebar-nav">
-                                        <li>
-                                            <a href="buttons.html"> Buttons </a>
-                                        </li>
-                                        <li>
-                                            <a href="cards.html"> Cards </a>
-                                        </li>
-                                        <li>
-                                            <a href="typography.html"> Typography </a>
-                                        </li>
-                                        <li>
-                                            <a href="icons.html"> Icons </a>
-                                        </li>
-                                        <li>
-                                            <a href="grid.html"> Grid </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="">
-                                        <i class="fa fa-file-text-o"></i> Pages
-                                        <i class="fa arrow"></i>
-                                    </a>
-                                    <ul class="sidebar-nav">
-                                        <li>
-                                            <a href="login.html"> Login </a>
-                                        </li>
-                                        <li>
-                                            <a href="signup.html"> Sign Up </a>
-                                        </li>
-                                        <li>
-                                            <a href="reset.html"> Reset </a>
-                                        </li>
-                                        <li>
-                                            <a href="error-404.html"> Error 404 App </a>
-                                        </li>
-                                        <li>
-                                            <a href="error-404-alt.html"> Error 404 Global </a>
-                                        </li>
-                                        <li>
-                                            <a href="error-500.html"> Error 500 App </a>
-                                        </li>
-                                        <li>
-                                            <a href="error-500-alt.html"> Error 500 Global </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="">
-                                        <i class="fa fa-sitemap"></i> Menu Levels
-                                        <i class="fa arrow"></i>
-                                    </a>
-                                    <ul class="sidebar-nav">
-                                        <li>
-                                            <a href="#"> Second Level Item
-                                                <i class="fa arrow"></i>
-                                            </a>
-                                            <ul class="sidebar-nav">
-                                                <li>
-                                                    <a href="#"> Third Level Item </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"> Third Level Item </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <a href="#"> Second Level Item </a>
-                                        </li>
-                                        <li>
-                                            <a href="#"> Second Level Item
-                                                <i class="fa arrow"></i>
-                                            </a>
-                                            <ul class="sidebar-nav">
-                                                <li>
-                                                    <a href="#"> Third Level Item </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"> Third Level Item </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"> Third Level Item
-                                                        <i class="fa arrow"></i>
-                                                    </a>
-                                                    <ul class="sidebar-nav">
-                                                        <li>
-                                                            <a href="#"> Fourth Level Item </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="#"> Fourth Level Item </a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="screenful.html">
-                                        <i class="fa fa-bar-chart"></i> Agile Metrics
-                                        <span class="label label-screenful">by Screenful</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="https://github.com/modularcode/modular-admin-html">
-                                        <i class="fa fa-github-alt"></i> Theme Docs </a>
                                 </li>
                             </ul>
                         </nav>
@@ -1418,7 +1319,6 @@
                 <div class="color-secondary"></div>
             </div>
         </div>
-        <script src="assets/js/vendor.js"></script>
         <script src="assets/js/app.js"></script>
     </body>
 </html>

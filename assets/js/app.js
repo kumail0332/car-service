@@ -58,24 +58,66 @@ function animate(options) {
 		}
 	);
 }
+$(document).ready(function(){
+	$(function() {
+		var $itemActions = $(".item-actions-dropdown");
 
-$(function() {
-	var $itemActions = $(".item-actions-dropdown");
+		$(document).on('click',function(e) {
+			if (!$(e.target).closest('.item-actions-dropdown').length) {
+				$itemActions.removeClass('active');
+			}
+		});
+		
+		$('.item-actions-toggle-btn').on('click',function(e){
+			e.preventDefault();
 
-	$(document).on('click',function(e) {
-		if (!$(e.target).closest('.item-actions-dropdown').length) {
-			$itemActions.removeClass('active');
-		}
-	});
-	
-	$('.item-actions-toggle-btn').on('click',function(e){
-		e.preventDefault();
+			var $thisActionList = $(this).closest('.item-actions-dropdown');
 
-		var $thisActionList = $(this).closest('.item-actions-dropdown');
+			$itemActions.not($thisActionList).removeClass('active');
 
-		$itemActions.not($thisActionList).removeClass('active');
+			$thisActionList.toggleClass('active');	
+		});
 
-		$thisActionList.toggleClass('active');	
+		$('#add-service').click(function(){
+			var serviceObj = {
+				serviceName: $('#service-name').val(),
+				price: $('#price').val(),
+				estimateTime: $('#time').val(),
+			};
+			$.ajax({
+				type: 'post',
+				url: '/api/services/add',
+				data: serviceObj,
+				success: function(response) {
+					$('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.title-block').slideDown('500', function() {
+                        setTimeout(function(){
+                            $('.alert').slideUp(500, function(){ $(this).remove(); });
+                        }, 5000);
+                    });
+				}
+			})
+		});
+
+		$('#edit-service').click(function(){
+			var serviceObj = {
+				serviceName: $('#service-name').val(),
+				price: $('#price').val(),
+				estimateTime: $('#time').val()
+			};
+			var serviceId = $('#service-id').val();
+			$.ajax({
+				type: 'put',
+				url: '/api/services/update?id=' + serviceId,
+				data: serviceObj,
+				success: function(response) {
+					$('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.title-block').slideDown('500', function() {
+                        setTimeout(function(){
+                            $('.alert').slideUp(500, function(){ $(this).remove(); });
+                        }, 5000);
+                    });
+				}
+			})
+		});
 	});
 });
 
@@ -179,21 +221,26 @@ $(function() {
 			});
 		},
 		submitHandler: function() {
-			var customer = {
-				firstName: $('#firstname').val(),
-				lastName: $('#lastname').val(),
-				email: $('#email').val(),
-				phone: $('#phone').val(),
-				password: $('#password').val(),
-				passwordConf: $('#retype_password').val()
+			var customerCreds = {
+				email: $('#username').val(),
+				password: $('#password').val()
 			}
 
 			$.ajax({
 				type: 'post',
-				url: '/api/customers/add',
-				data: customer,
+				url: ($('#admin-login')[0].checked) ? '/api/users/login' : '/api/customers/login',
+				data: customerCreds,
 				success: function(res) {
-					console.log(res);
+					if (res.result == 'redirect') {
+						window.location.replace(res.url);
+					}
+					else {
+						animate({
+							name: 'shake',
+							selector: '.auth-container > .card'
+						});
+						$('#login-btn').addClass('has-error').append('<span class="has-error">' + res.error + '</poan>');
+					}
 				}
 			});
 		}
@@ -202,6 +249,21 @@ $(function() {
 	$.extend(loginValidationSettings, config.validations);
 
     $('#login-form').validate(loginValidationSettings);
+})
+
+//Logout
+$(function() {
+	$('#logout').click(function(){
+		$.ajax({
+			type: 'get',
+			url: '/api/customers/logout',
+			success: function(res) {
+				if (res.result == 'redirect') {
+					window.location.replace(res.url);
+				}
+			}
+		});
+	});
 })
 //ResetForm validation
 $(function() {

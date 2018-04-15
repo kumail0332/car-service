@@ -11,8 +11,22 @@
         <link rel="stylesheet" href="assets/css/vendor.css">
         <!-- Theme initialization -->
         <link rel="stylesheet" href="assets/css/app-red.css">
+        <script src="assets/js/vendor.js"></script>
+        <script type="text/javascript">
+            $.ajax({
+                type: 'get',
+                url: '/api/validate-session',
+                success: function(user) {
+                    if (user) {
+                        window.location.replace('/');
+                    } else {
+                        $('body').removeClass('d-none');
+                    }
+                }
+            });
+        </script>
     </head>
-    <body>
+    <body class="d-none">
         <div class="auth">
             <div class="auth-container">
                 <div class="card">
@@ -74,7 +88,6 @@
                 <div class="color-secondary"></div>
             </div>
         </div>
-        <script src="assets/js/vendor.js"></script>
         <script src="assets/js/app.js"></script>
     </body>
 </html>

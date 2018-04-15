@@ -1,23 +1,23 @@
 var express = require('express');
 var router = express.Router();
-var Customer = require('../models/Customer');
+var Service = require('../models/Service');
 
 router.post('/add', function(req, res) {
-	var customer = new Customer(req.body);
-	customer.save(function (err) {
+	var service = new Service(req.body);
+	service.save(function (err) {
         if (err) res.send(JSON.stringify(err.code));
-        res.send('Customer registered successfully');
+        res.send('Service added successfully');
     })
 });
 
 router.post('/login', function(req, res) {
-	var customerCreds = req.body;
-	Customer.findOne(customerCreds, function (err, customer) {
+	var serviceCreds = req.body;
+	Service.findOne(serviceCreds, function (err, service) {
 		if (err) return handleError(err);
-		if (customer) {
+		if (service) {
 			req.session.user = {
-				id: customer._id,
-				name: customer.firstName
+				id: service._id,
+				name: service.firstName
 			};
 		    return res.send({result: 'redirect', url:'/'})
 		} else {
@@ -32,29 +32,25 @@ router.get('/get', function(req, res) {
 		var id = req.param('id').toString();
 		query = { '_id': id }
 	}
-    Customer.find(query, function (err, customers) {
+    Service.find(query, function (err, services) {
 		if (err) return handleError(err);
-		res.send(customers);
+		res.send(services);
 	});
 });
 
 router.put('/update', function(req, res) {
-	var data = new Customer(req.body);
-	var customer = {
-		firstName: data.firstName,
-		lastName: data.lastName,
-		phone: data.phone,
-		email: data.email,
-		password: data.password,
-		passwordConf: data.passwordConf
+	var data = new Service(req.body);
+	var service = {
+		serviceName: data.serviceName,
+		price: data.price,
+		estimateTime: data.estimateTime
 	};
     if (req.param('id')) {
 		var id = req.param('id').toString();
 		query = { '_id': id }
-
-		Customer.update(query, customer, function (err, response) {
+		Service.update(query, service, function (err, response) {
 			if (err) return handleError(err);
-			res.send('Customer updated successfully');
+			res.send('Service updated successfully');
 		});
 	}
 });
@@ -63,9 +59,9 @@ router.delete('/delete', function(req, res) {
     if (req.param('id')) {
 		var id = req.param('id').toString();
 
-		Customer.findByIdAndRemove(id, function (err, response) {
+		Service.findByIdAndRemove(id, function (err, response) {
 			if (err) return handleError(err);
-			res.send('Customer deleted successfully');
+			res.send('Service deleted successfully');
 		});
 	}
 });
