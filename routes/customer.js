@@ -1,25 +1,37 @@
 var express = require('express');
 var router = express.Router();
 var Customer = require('../models/Customer');
+const bcrypt = require('bcrypt');
 
 router.post('/add', function(req, res) {
 	var customer = new Customer(req.body);
-	customer.save(function (err) {
-        if (err) res.send(JSON.stringify(err.code));
-        res.send('Customer registered successfully');
-    })
+	bcrypt.hash(customer.password, 10, function (err, hash) {
+	    if (err) res.send(JSON.stringify(err));
+	    customer.password = hash;
+	    customer.save(function (error) {
+	        if (error) res.send(JSON.stringify(error.code));
+	        res.send('Customer registered successfully');
+	    })
+	});
 });
 
 router.post('/login', function(req, res) {
-	var customerCreds = req.body;
-	Customer.findOne(customerCreds, function (err, customer) {
+	var email = req.body.email;
+	var password = req.body.password;
+	Customer.findOne({ email: email }, function (err, customer) {
 		if (err) return handleError(err);
 		if (customer) {
-			req.session.user = {
-				id: customer._id,
-				name: customer.firstName
-			};
-		    return res.send({result: 'redirect', url:'/'})
+			bcrypt.compare(password, customer.password, function (err, result) {
+		        if (result === true) {
+		        	req.session.user = {
+						id: customer._id,
+						name: customer.firstName
+					};
+				    return res.send({result: 'redirect', url:'/'})
+		        } else {
+		        	return res.send({error: 'Invalid email or password.'})
+		        }
+		    })
 		} else {
 		    return res.send({error: 'Invalid email or password.'})
 		}
@@ -52,9 +64,13 @@ router.put('/update', function(req, res) {
 		var id = req.param('id').toString();
 		query = { '_id': id }
 
-		Customer.update(query, customer, function (err, response) {
-			if (err) return handleError(err);
-			res.send('Customer updated successfully');
+		bcrypt.hash(customer.password, 10, function (err, hash) {
+		    if (err) res.send(JSON.stringify(err));
+		    customer.password = hash;
+		    Customer.update(query, customer, function (err, response) {
+				if (err) return handleError(err);
+				res.send('Customer updated successfully');
+			});
 		});
 	}
 });

@@ -30,6 +30,35 @@
 					}
 				}
 			});
+
+            $(document).ready(function() {
+                $.ajax({
+                    type: 'get',
+                    url: 'api/services/get',
+                    success: function(services) {
+                        $('#active-services').text(services.length);
+                    }
+                });
+                $.ajax({
+                    type: 'get',
+                    url: 'api/customers/get',
+                    success: function(users) {
+                        $('#active-users').text(users.length);
+                    }
+                });
+                $.ajax({
+                    type: 'get',
+                    url: 'api/orders/get',
+                    success: function(orders) {
+                        $('#total-orders').text(orders.length);
+                        var totalSale = 0;
+                        for (var i = 0; i < orders.length; i++) {
+                            totalSale += orders[i].totalCharges;
+                        }
+                        $('#total-sale').text('Rs. ' + totalSale);
+                    }
+                });
+            });
         </script>
     </head>
     <body class="d-none">
@@ -188,102 +217,6 @@
                             </ul>
                         </nav>
                     </div>
-                    <footer class="sidebar-footer">
-                        <ul class="sidebar-menu metismenu" id="customize-menu">
-                            <li>
-                                <ul>
-                                    <li class="customize">
-                                        <div class="customize-item">
-                                            <div class="row customize-header">
-                                                <div class="col-4"> </div>
-                                                <div class="col-4">
-                                                    <label class="title">fixed</label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label class="title">static</label>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4">
-                                                    <label class="title">Sidebar:</label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label>
-                                                        <input class="radio" type="radio" name="sidebarPosition" value="sidebar-fixed">
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label>
-                                                        <input class="radio" type="radio" name="sidebarPosition" value="">
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4">
-                                                    <label class="title">Header:</label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label>
-                                                        <input class="radio" type="radio" name="headerPosition" value="header-fixed">
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label>
-                                                        <input class="radio" type="radio" name="headerPosition" value="">
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4">
-                                                    <label class="title">Footer:</label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label>
-                                                        <input class="radio" type="radio" name="footerPosition" value="footer-fixed">
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label>
-                                                        <input class="radio" type="radio" name="footerPosition" value="">
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="customize-item">
-                                            <ul class="customize-colors">
-                                                <li>
-                                                    <span class="color-item color-red" data-theme="red"></span>
-                                                </li>
-                                                <li>
-                                                    <span class="color-item color-orange" data-theme="orange"></span>
-                                                </li>
-                                                <li>
-                                                    <span class="color-item color-green active" data-theme=""></span>
-                                                </li>
-                                                <li>
-                                                    <span class="color-item color-seagreen" data-theme="seagreen"></span>
-                                                </li>
-                                                <li>
-                                                    <span class="color-item color-blue" data-theme="blue"></span>
-                                                </li>
-                                                <li>
-                                                    <span class="color-item color-purple" data-theme="purple"></span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </ul>
-                                <a href="">
-                                    <i class="fa fa-cog"></i> Customize </a>
-                            </li>
-                        </ul>
-                    </footer>
                 </aside>
                 <div class="sidebar-overlay" id="sidebar-overlay"></div>
                 <div class="sidebar-mobile-menu-handle" id="sidebar-mobile-menu-handle"></div>
@@ -306,7 +239,7 @@
                                                     <i class="fa fa-rocket"></i>
                                                 </div>
                                                 <div class="stat">
-                                                    <div class="value"> 5407 </div>
+                                                    <div class="value" id="active-services"></div>
                                                     <div class="name"> Active services </div>
                                                 </div>
                                                 <div class="progress stat-progress">
@@ -318,8 +251,8 @@
                                                     <i class="fa fa-shopping-cart"></i>
                                                 </div>
                                                 <div class="stat">
-                                                    <div class="value"> 78464 </div>
-                                                    <div class="name"> Services sold </div>
+                                                    <div class="value" id="total-orders"> </div>
+                                                    <div class="name"> Total Orders </div>
                                                 </div>
                                                 <div class="progress stat-progress">
                                                     <div class="progress-bar" style="width: 25%;"></div>
@@ -330,8 +263,8 @@
                                                     <i class="fa fa-line-chart"></i>
                                                 </div>
                                                 <div class="stat">
-                                                    <div class="value"> $80.560 </div>
-                                                    <div class="name"> Monthly income </div>
+                                                    <div class="value" id="total-sale"> $80.560 </div>
+                                                    <div class="name"> Total Sale </div>
                                                 </div>
                                                 <div class="progress stat-progress">
                                                     <div class="progress-bar" style="width: 60%;"></div>
@@ -342,35 +275,11 @@
                                                     <i class="fa fa-users"></i>
                                                 </div>
                                                 <div class="stat">
-                                                    <div class="value"> 359 </div>
+                                                    <div class="value" id="active-users"> </div>
                                                     <div class="name"> Total users </div>
                                                 </div>
                                                 <div class="progress stat-progress">
                                                     <div class="progress-bar" style="width: 34%;"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6  stat-col">
-                                                <div class="stat-icon">
-                                                    <i class="fa fa-list-alt"></i>
-                                                </div>
-                                                <div class="stat">
-                                                    <div class="value"> 59 </div>
-                                                    <div class="name"> Tickets closed </div>
-                                                </div>
-                                                <div class="progress stat-progress">
-                                                    <div class="progress-bar" style="width: 49%;"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 stat-col">
-                                                <div class="stat-icon">
-                                                    <i class="fa fa-dollar"></i>
-                                                </div>
-                                                <div class="stat">
-                                                    <div class="value"> $780.064 </div>
-                                                    <div class="name"> Total income </div>
-                                                </div>
-                                                <div class="progress stat-progress">
-                                                    <div class="progress-bar" style="width: 15%;"></div>
                                                 </div>
                                             </div>
                                         </div>

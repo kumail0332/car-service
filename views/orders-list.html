@@ -21,78 +21,79 @@
                         $('#profile-name').text(user.name);
                         if (!user.isAdmin) {
                             $('[class*="menu--"]').remove();
+                            $('h3.title').text('My Orders');
                         } else {
                             $('[class*="customer--"]').remove();
                         }
 						$('body').removeClass('d-none');
                         $('#customer-id').val(user.id);
+
+                        $.ajax({
+                            type: 'get',
+                            url: '/api/orders/get',
+                            data: {
+                                customerID: (!user.isAdmin) ? $('#customer-id').val() : ''
+                            },
+                            success: function(orders) {
+                                var ordersList = '';
+                                for(var i = 0; i < orders.length; i++) {
+                                    var date = new Date(orders[i].date);
+                                    var deliveryDate = new Date(orders[i].date);
+                                    deliveryDate.setDate(deliveryDate.getDate() + 3);
+                                    ordersList += '<li class="item">\
+                                        <div class="item-row">\
+                                            <div class="item-col item-col-header fixed item-col-img md">\
+                                                <div class="item-heading">S.No</div>\
+                                                <div> '+ (i+1) +' </div>\
+                                            </div>\
+                                            <div class="item-col">\
+                                                <div class="item-heading">First Name</div>\
+                                                <div> '+ date.getDate() + '/' + (date.getMonth()+1) + '/' + date.getFullYear() +' </div>\
+                                            </div>\
+                                            <div class="item-col">\
+                                                <div class="item-heading">First Name</div>\
+                                                <div> '+ deliveryDate.getDate() + '/' + (deliveryDate.getMonth()+1) + '/' + deliveryDate.getFullYear() +' </div>\
+                                            </div>\
+                                            <div class="item-col">\
+                                                <div class="item-heading">Email</div>\
+                                                <div> '+ orders[i].totalCharges +' </div>\
+                                            </div>\
+                                            <div class="item-col">\
+                                                <div class="item-heading">Email</div>\
+                                                <div style="text-transform: capitalize;"> '+ orders[i].status +' </div>\
+                                            </div>\
+                                            <div class="item-col fixed item-col-actions-dropdown">\
+                                                <div class="item-actions-dropdown">\
+                                                    <a class="item-actions-toggle-btn">\
+                                                        <span class="inactive">\
+                                                            <i class="fa fa-cog"></i>\
+                                                        </span>\
+                                                        <span class="active">\
+                                                            <i class="fa fa-chevron-circle-right"></i>\
+                                                        </span>\
+                                                    </a>\
+                                                    <div class="item-actions-block">\
+                                                        <ul class="item-actions-list">\
+                                                            <li>\
+                                                                <a class="view" href="order-editor.html?id='+orders[i]._id+'">\
+                                                                    <i class="fa fa-eye"></i>\
+                                                                </a>\
+                                                            </li>\
+                                                        </ul>\
+                                                    </div>\
+                                                </div>\
+                                            </div>\
+                                        </div>\
+                                    </li>';
+                                }
+                                $('.item-list').append(ordersList);
+                            }
+                        });
 					} else {
 						window.location.replace('/login.html');
 					}
 				}
 			});
-
-            $.ajax({
-                type: 'get',
-                url: '/api/services/get',
-                success: function(services) {
-                    var servicesList = '';
-                    var selectedServices = [];
-                    var totalCharges = 0;
-                    for(var i = 0; i < services.length; i++) {
-                        servicesList += '<div class="col-sm-4">\
-                                            <label>\
-                                                <input class="checkbox" type="checkbox" data-price="'+ services[i].price +'" value="'+ services[i]._id +'">\
-                                                <span>'+ services[i].serviceName +'</span>\
-                                            </label>\
-                                        </div>';
-                    }
-                    $('#services-selector').append(servicesList);
-                    $('#services-selector input[type="checkbox"]').click(function(){
-                        var serviceEstimates = '';
-                        totalCharges = 0;
-                        selectedServices = [];
-                        $('#services-selector input[type="checkbox"]').each(function() {
-                            if (this.checked) {
-                                serviceEstimates += '<tr>\
-                                                        <td>'+ $(this).next().text() +'</td>\
-                                                        <td style="text-align: right;">'+ $(this).data('price') +'</td>\
-                                                    </tr>';
-                                totalCharges += $(this).data('price');
-                                selectedServices.push($(this).val());
-                            }
-                        });
-                        serviceEstimates += '<tr>\
-                                                <td>Total</td>\
-                                                <td style="text-align: right;">'+ totalCharges +'</td>\
-                                            </tr>';
-                        $('#service-estimates').html(serviceEstimates);
-                    });
-
-                    $('#order-btn').click(function() {
-                        var orderData = {
-                            carYear: $('#year').val(),
-                            carMake: $('#make').val(),
-                            carModel: $('#model').val(),
-                            services: selectedServices,
-                            totalCharges: totalCharges,
-                            customerID: $('#customer-id').val()
-                        };
-                        $.ajax({
-                            type: 'post',
-                            url: '/api/orders/add',
-                            data: orderData,
-                            success: function(response) {
-                                $('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.item-editor-page > .title-block:first-child').slideDown('500', function() {
-                                    setTimeout(function(){
-                                        $('.alert').slideUp(500, function(){ $(this).remove(); });
-                                    }, 5000);
-                                });
-                            }
-                        })
-                    });
-                }
-            });
         </script>
     </head>
     <body class="d-none">
@@ -351,89 +352,54 @@
                 <div class="sidebar-overlay" id="sidebar-overlay"></div>
                 <div class="sidebar-mobile-menu-handle" id="sidebar-mobile-menu-handle"></div>
                 <div class="mobile-menu-handle"></div>
-                <article class="content item-editor-page">
-                    <div class="title-block">
-                        <h3 class="title"> <span>New order</span>
-                            <span class="sparkline bar" data-type="bar"></span>
-                        </h3>
-                    </div>
-                    <form name="item">
-                        <div class="card card-block">
-                            <div class="title-block">
-                                <h3 class="title"> Register Car </h3>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-3 form-control-label text-xs-right"> Year </label>
-                                <div class="col-sm-9">
-                                    <select class="form-control boxed" id="year">
-                                        <option val="2018">2018</option>
-                                        <option val="2017">2017</option>
-                                        <option val="2016">2016</option>
-                                        <option val="2015">2015</option>
-                                        <option val="2014">2014</option>
-                                        <option val="2013">2013</option>
-                                        <option val="2012">2012</option>
-                                        <option val="2011">2011</option>
-                                        <option val="2010">2010</option>
-                                        <option val="2009">2009</option>
-                                        <option val="2008">2008</option>
-                                        <option val="2007">2007</option>
-                                        <option val="2006">2006</option>
-                                        <option val="2005">2005</option>
-                                        <option val="2004">2004</option>
-                                        <option val="2003">2003</option>
-                                        <option val="2002">2002</option>
-                                        <option val="2001">2001</option>
-                                        <option val="2000">2000</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-3 form-control-label text-xs-right"> Make </label>
-                                <div class="col-sm-9">
-                                    <select class="form-control boxed" id="make">
-                                        <option>Suzuki</option>
-                                        <option>Toyota</option>
-                                        <option>Honda</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-3 form-control-label text-xs-right"> Model </label>
-                                <div class="col-sm-9">
-                                    <select class="form-control boxed" id="model">
-                                        <option>Mehran</option>
-                                        <option>Bolan</option>
-                                        <option>Cultuz</option>
-                                        <option>Alto</option>
-                                        <option>Wagon-R</option>
-                                        <option>Corolla</option>
-                                        <option>Vitz</option>
-                                        <option>Civic</option>
-                                        <option>City</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="title-block">
-                                <h3 class="title"> Select Services </h3>
-                            </div>
-                            <div class="form-group row" id="services-selector"></div>
-                            <hr>
-                            <div class="title-block">
-                                <h3 class="title"> Charges </h3>
-                            </div>
-                            <table class="table" style="width: 25%">
-                                <tbody id="service-estimates"></tbody>
-                            </table>
-                            <div class="form-group row">
-                                <div class="col-sm-10 col-sm-offset-2">
-                                    <input type="hidden" name="" id="customer-id">
-                                    <button type="button" class="btn btn-primary" id="order-btn"> Order </button>
+                <article class="content items-list-page">
+                    <div class="title-search-block">
+                        <div class="title-block">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="title"> Orders
+                                        <!-- <a href="item-editor.html" class="btn btn-primary btn-sm rounded-s"> Add New </a> -->
+                                    </h3>
+                                    <p class="title-description"> List of orders </p>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
+                    <div class="card items">
+                        <ul class="item-list striped">
+                            <li class="item item-list-header">
+                                <div class="item-row">
+                                    <div class="item-col item-col-header fixed item-col-img md">
+                                        <div>
+                                            <span>S.No</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Order Date</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Delivery Date</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Charges</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header">
+                                        <div>
+                                            <span>Status</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-col item-col-header fixed item-col-actions-dropdown"> </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <input type="hidden" name="" id="customer-id">
                 </article>
                 <div class="modal fade" id="modal-media">
                     <div class="modal-dialog modal-lg">

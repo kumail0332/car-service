@@ -21,8 +21,10 @@
                         $('#profile-name').text(user.name);
                         if (!user.isAdmin) {
                             $('[class*="menu--"]').remove();
+                            $('#change-status').remove();
                         } else {
                             $('[class*="customer--"]').remove();
+                            $('#status').remove();
                         }
 						$('body').removeClass('d-none');
                         $('#customer-id').val(user.id);
@@ -32,66 +34,66 @@
 				}
 			});
 
-            $.ajax({
-                type: 'get',
-                url: '/api/services/get',
-                success: function(services) {
-                    var servicesList = '';
-                    var selectedServices = [];
-                    var totalCharges = 0;
-                    for(var i = 0; i < services.length; i++) {
-                        servicesList += '<div class="col-sm-4">\
-                                            <label>\
-                                                <input class="checkbox" type="checkbox" data-price="'+ services[i].price +'" value="'+ services[i]._id +'">\
-                                                <span>'+ services[i].serviceName +'</span>\
-                                            </label>\
-                                        </div>';
-                    }
-                    $('#services-selector').append(servicesList);
-                    $('#services-selector input[type="checkbox"]').click(function(){
-                        var serviceEstimates = '';
-                        totalCharges = 0;
-                        selectedServices = [];
-                        $('#services-selector input[type="checkbox"]').each(function() {
-                            if (this.checked) {
-                                serviceEstimates += '<tr>\
-                                                        <td>'+ $(this).next().text() +'</td>\
-                                                        <td style="text-align: right;">'+ $(this).data('price') +'</td>\
-                                                    </tr>';
-                                totalCharges += $(this).data('price');
-                                selectedServices.push($(this).val());
-                            }
-                        });
-                        serviceEstimates += '<tr>\
-                                                <td>Total</td>\
-                                                <td style="text-align: right;">'+ totalCharges +'</td>\
-                                            </tr>';
-                        $('#service-estimates').html(serviceEstimates);
-                    });
+            $(document).ready(function() {
+                var url_string = window.location.href;
+                var url = new URL(url_string);
+                var orderId = url.searchParams.get('id');
+                $.ajax({
+                    type: 'get',
+                    url: '/api/orders/get',
+                    data: {
+                        id: orderId
+                    },
+                    success: function(order) {
+                        var date = new Date(order[0].date);
+                        var Ddate = new Date(order[0].date);
+                        Ddate.setDate(Ddate.getDate() + 3);
+                        $('#date').val(date.getDate() + '/' + (date.getMonth()+1) + '/' + date.getFullYear());
+                        $('#d-date').val(Ddate.getDate() + '/' + (Ddate.getMonth()+1) + '/' + Ddate.getFullYear());
+                        $('#car-year').val(order[0].carYear);
+                        $('#car-make').val(order[0].carMake);
+                        $('#car-model').val(order[0].carModel);
+                        $('#status').val(order[0].status);
+                        $('#change-status').val(order[0].status);
 
-                    $('#order-btn').click(function() {
-                        var orderData = {
-                            carYear: $('#year').val(),
-                            carMake: $('#make').val(),
-                            carModel: $('#model').val(),
-                            services: selectedServices,
-                            totalCharges: totalCharges,
-                            customerID: $('#customer-id').val()
-                        };
-                        $.ajax({
-                            type: 'post',
-                            url: '/api/orders/add',
-                            data: orderData,
-                            success: function(response) {
-                                $('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.item-editor-page > .title-block:first-child').slideDown('500', function() {
-                                    setTimeout(function(){
-                                        $('.alert').slideUp(500, function(){ $(this).remove(); });
-                                    }, 5000);
-                                });
-                            }
-                        })
+                        var totalCharges = 0;
+
+                        for (var i = 0; i < order[0].services.length; i++) {
+                            $.ajax({
+                                type: 'get',
+                                url: '/api/services/get',
+                                data: {
+                                    id: order[0].services[i]
+                                },
+                                success: function(service) {
+                                    var selectedServices = '<tr>\
+                                                            <td>'+ service[0].serviceName +'</td>\
+                                                            <td style="text-align: right;">'+ service[0].price +'</td>\
+                                                        </tr>';
+                                    totalCharges += service[0].price;
+                                    $('#service-estimates').append(selectedServices);
+                                    $('#totalCharges').text(totalCharges);
+                                }
+                            });
+                        }
+                    }
+                });
+                $('#change-status').change(function() {
+                    $.ajax({
+                        type: 'put',
+                        url: '/api/orders/update?id=' + orderId,
+                        data: {
+                            status: $(this).val()
+                        },
+                        success: function(response) {
+                            $('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.item-editor-page > .title-block:first-child').slideDown('500', function() {
+                                setTimeout(function(){
+                                    $('.alert').slideUp(500, function(){ $(this).remove(); });
+                                }, 5000);
+                            });
+                        }
                     });
-                }
+                });
             });
         </script>
     </head>
@@ -353,85 +355,76 @@
                 <div class="mobile-menu-handle"></div>
                 <article class="content item-editor-page">
                     <div class="title-block">
-                        <h3 class="title"> <span>New order</span>
+                        <h3 class="title"> <span> Order Details </span>
                             <span class="sparkline bar" data-type="bar"></span>
                         </h3>
                     </div>
                     <form name="item">
                         <div class="card card-block">
+                            <div class="form-group row">
+                                <label class="col-sm-3 form-control-label text-xs-right"> Order Date </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="" id="date" readonly="" class="form-control boxed">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 form-control-label text-xs-right"> Delivery Date </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="" id="d-date" readonly="" class="form-control boxed">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 form-control-label text-xs-right"> Status </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="" id="status" readonly="" class="form-control boxed" style="text-transform: capitalize;">
+                                    <select id="change-status" class="form-control boxed">
+                                        <option value="pending">Pending</option>
+                                        <option value="in progress">In Progress</option>
+                                        <option value="complete">Complete</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <hr>
                             <div class="title-block">
-                                <h3 class="title"> Register Car </h3>
+                                <h3 class="title"> Registered Car </h3>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-3 form-control-label text-xs-right"> Year </label>
                                 <div class="col-sm-9">
-                                    <select class="form-control boxed" id="year">
-                                        <option val="2018">2018</option>
-                                        <option val="2017">2017</option>
-                                        <option val="2016">2016</option>
-                                        <option val="2015">2015</option>
-                                        <option val="2014">2014</option>
-                                        <option val="2013">2013</option>
-                                        <option val="2012">2012</option>
-                                        <option val="2011">2011</option>
-                                        <option val="2010">2010</option>
-                                        <option val="2009">2009</option>
-                                        <option val="2008">2008</option>
-                                        <option val="2007">2007</option>
-                                        <option val="2006">2006</option>
-                                        <option val="2005">2005</option>
-                                        <option val="2004">2004</option>
-                                        <option val="2003">2003</option>
-                                        <option val="2002">2002</option>
-                                        <option val="2001">2001</option>
-                                        <option val="2000">2000</option>
-                                    </select>
+                                    <input type="text" name="" id="car-year" readonly="" class="form-control boxed">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-3 form-control-label text-xs-right"> Make </label>
                                 <div class="col-sm-9">
-                                    <select class="form-control boxed" id="make">
-                                        <option>Suzuki</option>
-                                        <option>Toyota</option>
-                                        <option>Honda</option>
-                                    </select>
+                                    <input type="text" name="" id="car-make" readonly="" class="form-control boxed">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-3 form-control-label text-xs-right"> Model </label>
                                 <div class="col-sm-9">
-                                    <select class="form-control boxed" id="model">
-                                        <option>Mehran</option>
-                                        <option>Bolan</option>
-                                        <option>Cultuz</option>
-                                        <option>Alto</option>
-                                        <option>Wagon-R</option>
-                                        <option>Corolla</option>
-                                        <option>Vitz</option>
-                                        <option>Civic</option>
-                                        <option>City</option>
-                                    </select>
+                                    <input type="text" name="" id="car-model" readonly="" class="form-control boxed">
                                 </div>
                             </div>
                             <hr>
                             <div class="title-block">
-                                <h3 class="title"> Select Services </h3>
-                            </div>
-                            <div class="form-group row" id="services-selector"></div>
-                            <hr>
-                            <div class="title-block">
-                                <h3 class="title"> Charges </h3>
+                                <h3 class="title"> Selected Services &amp; Charges </h3>
                             </div>
                             <table class="table" style="width: 25%">
                                 <tbody id="service-estimates"></tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td style="text-align: right;" id="totalCharges"></td>
+                                    </tr>
+                                </tbody>
                             </table>
-                            <div class="form-group row">
+                            <!-- <div class="form-group row">
                                 <div class="col-sm-10 col-sm-offset-2">
                                     <input type="hidden" name="" id="customer-id">
                                     <button type="button" class="btn btn-primary" id="order-btn"> Order </button>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </form>
                 </article>

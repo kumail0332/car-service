@@ -11,9 +11,8 @@ var customerSchema = new mongoose.Schema({
 		trim: true
 	},
 	phone: {
-		type: Number,
-		required: true,
-		trim: true
+		type: String,
+		required: true
 	},
 	email: {
 		type: String,

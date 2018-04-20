@@ -392,8 +392,12 @@ $(function() {
 				type: 'post',
 				url: '/api/customers/add',
 				data: customer,
-				success: function(res) {
-					console.log(res);
+				success: function(response) {
+					$('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.auth-container .card').slideDown('500', function() {
+                        setTimeout(function(){
+                            $('.alert').slideUp(500, function(){ $(this).remove(); });
+                        }, 5000);
+                    });
 				}
 			});
 		}
@@ -1127,14 +1131,31 @@ $(function() {
     } 
 
     function drawSalesChart(){
+    	$.ajax({
+    		type: 'get',
+    		url: '/api/services/get',
+    		success: function(services) {
+    			var servicesObj = {};
+    			for (var i = 0; i < services.length; i++) {
+    				servicesObj[services[i]._id] = services[i].serviceName;
+    			}
+    			$.ajax({
+		    		type: 'get',
+		    		url: '/api/orders/get',
+		    		success: function(orders) {
+
+		    		}
+		    	});
+    		}
+    	});
 
     $dashboardSalesBreakdownChart.empty();
 
         Morris.Donut({
             element: 'dashboard-sales-breakdown-chart',
-            data: [{ label: "Download Sales", value: 12 },
-                { label: "In-Store Sales", value: 30 },
-                { label: "Mail-Order Sales", value: 20 } ],
+            data: [{ label: "Air Filter", value: 12 },
+                { label: "Oil Change", value: 30 },
+                { label: "some thing", value: 0 } ],
             resize: true,
             colors: [
                 tinycolor(config.chart.colorPrimary.toString()).lighten(10).toString(),

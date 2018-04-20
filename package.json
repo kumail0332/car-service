@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/kumail0332/car-service#readme",
   "dependencies": {
+    "add-subtract-date": "^1.0.13",
+    "bcrypt": "^2.0.0",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
