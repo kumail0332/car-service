@@ -389,15 +389,29 @@ $(function() {
 			}
 
 			$.ajax({
-				type: 'post',
-				url: '/api/customers/add',
-				data: customer,
-				success: function(response) {
-					$('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.auth-container .card').slideDown('500', function() {
-                        setTimeout(function(){
-                            $('.alert').slideUp(500, function(){ $(this).remove(); });
-                        }, 5000);
-                    });
+				type: 'get',
+				url: '/api/customers/get?email='+ customer.email,
+				success: function(res) {
+					if (res.length) {
+						$('<div class="alert alert-danger">Customer with this email already exist</div>').hide().insertBefore('.auth-container .card').slideDown('500', function() {
+	                        setTimeout(function(){
+	                            $('.alert').slideUp(500, function(){ $(this).remove(); });
+	                        }, 5000);
+	                    });
+					} else {
+						$.ajax({
+							type: 'post',
+							url: '/api/customers/add',
+							data: customer,
+							success: function(response) {
+								$('<div class="alert alert-success">'+ response +'</div>').hide().insertBefore('.auth-container .card').slideDown('500', function() {
+			                        setTimeout(function(){
+			                            $('.alert').slideUp(500, function(){ $(this).remove(); });
+			                        }, 5000);
+			                    });
+							}
+						});
+					}
 				}
 			});
 		}

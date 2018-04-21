@@ -44,6 +44,10 @@ router.get('/get', function(req, res) {
 		var id = req.param('id').toString();
 		query = { '_id': id }
 	}
+	if (req.param('email')) {
+		var email = req.param('email').toString();
+		query = { 'email': email }
+	}
     Customer.find(query, function (err, customers) {
 		if (err) return handleError(err);
 		res.send(customers);

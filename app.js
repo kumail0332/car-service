@@ -29,5 +29,4 @@ app.use('/api/orders', require('./routes/order'));
 // listen on port 3000
 app.listen(3000, function() {
 	console.log('Running app http://localhost:3000');
-	// opn('http://localhost:3000');
 });
